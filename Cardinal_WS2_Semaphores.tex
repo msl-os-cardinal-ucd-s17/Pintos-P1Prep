@@ -5,6 +5,8 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage{listings}
 
+\usepackage[title]{appendix}
+
 \begin{document}
 \lstset{language=C,breaklines,
                 keywordstyle=\color{blue},
@@ -19,7 +21,6 @@
 
 
 \section{Semaphores}
-
 
 \subsection{Overview}
 Semaphores and locks are two examples of synchronization primitives, objects used to ensure that multiple threads can access shared data without introducing race conditions. Although locks are ubiquitous in general-purpose resource management, semaphores are still necessary to efficiently deal with the interrupt handler. PintOS’ synchronization is built entirely off of semaphores and its lists. To understand how PintOS’ synchronization routines can be extended to support priority scheduling, this report presents the necessary background and pseudocode to tackle the upcoming assignments.
@@ -88,13 +89,15 @@ The PintOS kernel provides an implementation of a doubly linked list in \textit{
 
 Because a number of PintOS problems, such as priority scheduling, rely on some implementation of a priority queue, the doubly linked list provided can be quite useful. Although a more complex data structure like a max-heap might be slightly more efficient for this purpose, the list API provides all the same functionality. The list\_sort(), list\_insert\_ordered() functions are perhaps the most relevant here. If we need to manage a priority queue, the list\_sort() function implements an O(nlgn) sorting algorithm. The ordered list can be maintained using the list\_insert\_ordered() function which will place a new list element into the proper position. An important thing to note is that the list sorting algorithm sorts into increasing order and so servicing a list item with highest priority will require accessing the last item in the list.
 
+\section*{Open Questions}
+
 
 \section*{Conclusion}
 
 Because thread preemption and external interrupts will be components of PintOS, synchronization primitives will be vital in ensuring that shared resources are being accessed appropriately and ultimately yielding deterministic results. As PintOS Project 1 assignment requires, a priority scheduler will be implemented, and will require semaphores --more specifically locks. Understanding where semaphores are necessary and adding vital functions to handle, assign, and donate priority will allow for success in PintOS Project 1.
 
 \pagebreak
-\appendix
+\begin{appendices}
 
 \section{Mutual Exclusion Example}
 \begin{lstlisting}[frame=single,basicstyle=\footnotesize]
@@ -186,6 +189,26 @@ do_something(void* aux){
 		sema_up(&my_semaphore);
 }
 \end{lstlisting}
+
+\end{appendices}
+
+\pagebreak
+
+\section*{References}
+
+\begin{itemize}
+\item Pintos Source Code
+	\begin{itemize}
+	\item /lib/kernel/list.h
+	\item /lib/kernel/list.c
+	\item /src/threads/synch.h
+	\item /src/threads/synch.c
+	\end{itemize}
+\item Operating Systems: Principles and Practices Second Edition by Thomas Anderson and Michael Dahlin
+\item Pintos Manual by Ben Pfaff
+\end{itemize}
+	
+
 
 
 \end{document}
