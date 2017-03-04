@@ -6,7 +6,7 @@
 \usepackage{listings}
 
 \usepackage[title]{appendix}
-
+\hyphenation{synchronization}
 \begin{document}
 \lstset{language=C,breaklines,
                 keywordstyle=\color{blue},
@@ -23,7 +23,7 @@
 \section{Semaphores}
 
 \subsection{Overview}
-Semaphores and locks are two examples of synchronization primitives, objects used to ensure that multiple threads can access shared data without introducing race conditions. Although locks are ubiquitous in general-purpose resource management, semaphores are still necessary to efficiently deal with the interrupt handler. PintOS’ synchronization is built entirely off of semaphores and its lists. To understand how PintOS’ synchronization routines can be extended to support priority scheduling, this report presents the necessary background and pseudocode to tackle the upcoming assignments.
+Semaphores and locks are two examples of synchronization primitives, objects used to ensure that multiple threads can access shared data without introducing race conditions. Although locks are ubiquitous in general-purpose resource management, semaphores are still necessary to efficiently deal with the interrupt handler. Pintos’ synchronization is built entirely off of semaphores and its lists. To understand how Pintos’ synchronization routines can be extended to support priority scheduling, this report presents the necessary background and pseudocode to tackle the upcoming assignments.
 
 
 \subsection{Background - Architecture}
@@ -51,9 +51,8 @@ Thread and lock structures, themselves, are implemented in /src/threads/synch.h.
 
 \subsection{Limitations of Semaphores}
 Like condition variables, semaphores can be used to wait for a thread to finish a process. For example, if a thread wants to create another thread, and wait until the created thread has finished some task, the first thread may initialize a semaphore to 0, pass it to the created thread, and call down() immediately after. The value of the semaphore will be zero, so the first thread will block until the next call to up(). When the created thread has finished its task, it should call up() to wake the first thread.
-In this way, semaphores can be used like condition variables. However, semaphores cannot replace condition variables because they cannot test any conditions other than the current value of the semaphore. With the lock and condition variable models, threads can test a predicate value, and then continue to wait if the predicate is not true. This is possible because a call to wait() will release the held lock before stopping the thread. When signal() is called, wait() will reacquire the lock which allows access to shared state.
-
-For this reason, locks and condition variables are preferred to semaphores. Pintos implements condition variables through semaphores. However, because condition variables involve blocking the thread until a value becomes true, they cannot be used inside interrupt handlers like semaphores can. 
+In this way, semaphores can be used like condition variables. However, semaphores cannot replace condition variables because they cannot test any conditions other than the current value of the semaphore. With the lock and condition variable models, threads can test a predicate value, and then continue to wait if the predicate is not true. This is possible because a call to wait() will release the held lock before stopping the thread. When signal() is called, wait() will reacquire the lock which allows access to shared state. For this reason, locks and condition variables are preferred to semaphores. 
+Pintos implements condition variables through semaphores. However, because condition variables involve blocking the thread until a value becomes true, they cannot be used inside interrupt handlers like semaphores can. 
 
 \subsection{Implementing priority scheduling for locks}
 The priority scheduling will be important in determining which threads should occupy the CPU. Priority introduces a layer of complexity: how can threads be inserted into the waiting list?  The priority (either dictated by the thread itself or otherwise) will control the location within the waiting list; this location (priority) will be reflected in this absolute order. This can be achieved either by reordering the list as a whole or maintaining the appropriate order by inserting the thread in the correct place in the already ordered list. The semaphore (lock) will need to properly handle priority donation and the many scenarios (including, but not limited to, nested donation). 
@@ -86,7 +85,6 @@ The PintOS kernel provides an implementation of a doubly linked list in \textit{
 \end{itemize}  
   
 \subsection{Scheduling}
-
 Because a number of Pintos problems (like priority scheduling) rely on some implementation of a priority queue, the doubly linked list provided can be quite useful. Although a more complex data structure like a max-heap might be slightly more efficient for this purpose, the list API provides all the same functionality. The list\_sort(), list\_insert\_ordered() functions are perhaps the most relevant here. If we need to manage a priority queue, the list\_sort() function implements an O(n*lg(n)) sorting algorithm. The ordered list can be maintained using the list\_insert\_ordered() function which will place a new list element into the proper position. An important thing to note is that the list sorting algorithm sorts into increasing order and so servicing a list item with highest priority will require accessing the last item in the list. Pintos provides list\_begin() and list\_end() functions to allow iterating through a list front-to-back or back-to-front, respectively.
 
 \section*{Open Questions}
