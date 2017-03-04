@@ -36,7 +36,7 @@ Calling up(), sometimes referenced as V(), on a Semaphore is equivalent to forfe
 The init() function initializes a semaphore with the non-negative integer value. This value will control how many threads can down() the semaphore before a calling thread will need to block for access. For example, say a semaphore is initialized with a value of 2. When Thread 1 and Thread 2 call down(), the calls will return immediately because they decrement the count from 2-1 and 1-0 respectively. However, if Thread 3 calls down() before Thread 1 or Thread 2 call up(), it will be added to the waiting list and block until it is woken by a call to up(). In this way, A semaphore can be used to control access to the number of threads allowed to access a resource concurrently.
 
 
-\subsection{Usage & Design}
+\subsection{Usage and Design}
 
 \subsubsection{Mutual Exclusion}
 Mutual Exclusion (Locks) - Semaphores initialized with a value of 1 will function as a lock, since only one thread will be allowed access at a time. In Pintos, Locks are implemented as a structure containing a Semaphore and a pointer to the “owning” thread. See Appendix A for an example usage of mutual exclusion.
