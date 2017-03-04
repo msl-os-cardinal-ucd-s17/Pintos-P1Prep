@@ -127,7 +127,7 @@ Because thread preemption and external interrupts are components of Pintos, sync
 struct lock *myLock = (struct lock*) malloc(sizeof(struct lock));
 
 // Initialize the lock (calls sema_init for lock's semaphore member).
-lock_init(&myLock);
+lock_init(myLock);
 
 /*
   Part 2 - Lock Usage
@@ -141,13 +141,13 @@ lock_init(&myLock);
   and will sleep until the lock is available.
   Internally, lock_acquire() calls sema_down(). 
 */    
-lock_acquire(&myLock);
+lock_acquire(myLock);
 
 // Perform some operation on the Resource we have access to.
 modify(Resource);
 
 // Release the lock once we have finished with the resource.
-lock_release(&myLock);
+lock_release(myLock);
 \end{lstlisting}
 
 \pagebreak
@@ -168,16 +168,16 @@ main(){
 	// Initialize the semaphore with a value of 0. This means that the 
 	// first thread to call sema_down() will wait, 
 	// because the semaphore's value is 0.
-	sema_init(&my_semaphore,0);
+	sema_init(my_semaphore,0);
 
 	// Create a new 'child' thread, which our main thread will wait for.
 	// We can use the 'aux' field of Pintos' thread_create() function to 
 	// pass a reference to the semaphore.
-	thread_create("Child",PRI_DEFAULT,do_something,&my_semaphore);
+	thread_create("Child",PRI_DEFAULT,do_something,my_semaphore);
 	
 	// Call sema_down() on the semaphore. 
 	// This will wait for the child thread to call sema_up().
-	sema_down(&my_semaphore);
+	sema_down(my_semaphore);
 	
 	// At this point, the child thread has completed.
 	keep_working()
@@ -197,7 +197,7 @@ do_something(void* aux){
 	
 	// When we're done working, 
 	// we can wake up the parent thread by calling sema_up().
-	sema_up(&my_semaphore);
+	sema_up(my_semaphore);
 }
 \end{lstlisting}
 
