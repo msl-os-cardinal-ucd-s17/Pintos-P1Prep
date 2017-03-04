@@ -111,36 +111,38 @@ Because thread preemption and external interrupts are components of Pintos, sync
 \section{Mutual Exclusion Example}
 \begin{lstlisting}[frame=single,basicstyle=\footnotesize]
 /*
-Mutual Exclusion Use Case (Locks).
+  Mutual Exclusion Use Case (Locks).
 
-In this example, we use the Pintos lock structure (found in /src/threads/synch.c)
-to provide mutual exclusion on a Resource.
+  In this example, we use the Pintos lock structure (/src/threads/synch.c) to provide mutual exclusion on a Resource.
 
-Since Pintos locks are implemented using semaphores, this operation can also be performed by using a Semaphore with an initial value of 1. Calling sema_down() will decrement the value to 0. Any other threads calling sema_down() will be added to the waitlist and wait until the thread with access calls sema_up()
+  Since Pintos locks are implemented using semaphores, this operation can also be performed by using a Semaphore with an initial value of 1. 
+  Calling sema_down() will decrement the value to 0. Any other threads calling sema_down() will be added to the waitlist and wait until the thread with access calls sema_up()
 */
 
 /*
-Part 1 - Lock Setup
-
-This should only be done once per lock. This code should not run on every thread that
-needs the lock.
+  Part 1 - Lock Setup
+  This should only be done once per lock. 
+  This code should not run on every thread that needs the lock.
 */
 
 // Our lock structure.
 struct lock *myLock = (struct lock*) malloc(sizeof(struct lock));
 
-// Initialize the lock (This function calls sema_init for the lock's semaphore member).
+// Initialize the lock (calls sema_init for lock's semaphore member).
 lock_init(&myLock);
 
 /*
-Part 2 - Lock Usage
-This is an example of code that would run in a thread. The 'Resource' class is just used to illustrate
-the usage of a lock.
+  Part 2 - Lock Usage
+  This is an example of code that would run in a thread. 
+  The 'Resource' class is just used to illustrate the usage of a lock.
 */
 
-// This will attempt to acquire the lock. If it is not available, the thread is
-// added to the waiting list, and will sleep until the lock is available.
-// Internally, lock_acquire() calls sema_down(). 
+/*
+  This will attempt to acquire the lock. 
+  If it is not available, the thread is added to the waiting list, 
+  and will sleep until the lock is available.
+  Internally, lock_acquire() calls sema_down(). 
+*/    
 lock_acquire(&myLock);
 
 // Perform some operation on the Resource we have access to.
@@ -155,47 +157,49 @@ lock_release(&myLock);
 \section{General Waiting Example}
 \begin{lstlisting}[frame=single,basicstyle=\footnotesize]
 /*
-Part 1 - Main Thread Setup.
+  Part 1 - Main Thread Setup.
 
-In the main() function, we create and allocate space for a new semaphore, then initialize it. 
+  In the main() function, we create and allocate space for a new semaphore, then initialize it. 
 
-We create a child thread, and then call sema_down() on our semaphore, which will add the current thread to the waiting list for the semaphore.
+  We create a child thread, and then call sema_down() on our semaphore, which will add the current thread to the waiting list for the semaphore.
 */
 main(){
 	// Create a pointer to a semaphore structure.
 	struct semaphore *my_semaphore = (struct semaphore*) malloc(sizeof(struct semaphore));
 
-	// Initialize the semaphore with a value of 0. This means that the first thread to
-	// call sema_down() will wait, because the semaphore's value is 0.
+	// Initialize the semaphore with a value of 0. This means that the 
+	// first thread to call sema_down() will wait, 
+	// because the semaphore's value is 0.
 	sema_init(&my_semaphore,0);
 
 	// Create a new 'child' thread, which our main thread will wait for.
-	// We can use the 'aux' field of Pintos' thread_create() function to pass a reference
-	// to the semaphore.
+	// We can use the 'aux' field of Pintos' thread_create() function to 
+	// pass a reference to the semaphore.
 	thread_create("Child",PRI_DEFAULT,do_something,&my_semaphore);
 	
-	// Call sema_down() on the semaphore. This will wait for the child thread to call
-	// sema_up().
+	// Call sema_down() on the semaphore. 
+	// This will wait for the child thread to call sema_up().
 	sema_down(&my_semaphore);
 	
 	// At this point, the child thread has completed.
 	keep_working()
 }
 /*
-Part 2 - Child Thread
+  Part 2 - Child Thread
 
-In the child thread, we receive a pointer to the semaphore. We can do some work and then call sema_up(), which will remove the first thread from the waiting list and unblock it.
+  In the child thread, we receive a pointer to the semaphore. We can do some work and then call sema_up(), which will remove the first thread from the waiting list and unblock it.
 
-In our case, this is the main thread that called sema_down().
+  In our case, this is the main thread that called sema_down().
 */
 do_something(void* aux){
 	// Cast the void pointer back to a struct semaphore*.
 	struct semaphore *my_semaphore = (struct semaphore*) aux;
-	/*
-	Code to do work here.
-	*/
-	// When we're done working, we can wake up the parent thread by calling  //sema_up().
-		sema_up(&my_semaphore);
+	
+	/* Code to do work here. */
+	
+	// When we're done working, 
+	// we can wake up the parent thread by calling sema_up().
+	sema_up(&my_semaphore);
 }
 \end{lstlisting}
 
