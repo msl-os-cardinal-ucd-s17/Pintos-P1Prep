@@ -87,14 +87,22 @@ The PintOS kernel provides an implementation of a doubly linked list in \textit{
   
 \subsection{Scheduling}
 
-Because a number of PintOS problems, such as priority scheduling, rely on some implementation of a priority queue, the doubly linked list provided can be quite useful. Although a more complex data structure like a max-heap might be slightly more efficient for this purpose, the list API provides all the same functionality. The list\_sort(), list\_insert\_ordered() functions are perhaps the most relevant here. If we need to manage a priority queue, the list\_sort() function implements an O(nlgn) sorting algorithm. The ordered list can be maintained using the list\_insert\_ordered() function which will place a new list element into the proper position. An important thing to note is that the list sorting algorithm sorts into increasing order and so servicing a list item with highest priority will require accessing the last item in the list.
+Because a number of Pintos problems (like priority scheduling) rely on some implementation of a priority queue, the doubly linked list provided can be quite useful. Although a more complex data structure like a max-heap might be slightly more efficient for this purpose, the list API provides all the same functionality. The list\_sort(), list\_insert\_ordered() functions are perhaps the most relevant here. If we need to manage a priority queue, the list\_sort() function implements an O(n*lg(n)) sorting algorithm. The ordered list can be maintained using the list\_insert\_ordered() function which will place a new list element into the proper position. An important thing to note is that the list sorting algorithm sorts into increasing order and so servicing a list item with highest priority will require accessing the last item in the list. Pintos provides list\_begin() and list\_end() functions to allow iterating through a list front-to-back or back-to-front, respectively.
 
 \section*{Open Questions}
 
 
+\begin{enumerate}
+\item If the depth of nested priority donation d is clamped, what should happen to the locks of the chain of threads t$_{1:d}$ when a thread of greatest priority t$_{d+1}$ yields in order to minimize, if not negate, starvation?
+\item Would implementing our priority queues as a binary tree improve performance and/or simplify access to queues?
+\item What are the trade-offs of implementing a single queue of ready to run threads vs. a single queue for each of the 64 priority levels?
+\end{enumerate}
+
+
+
 \section*{Conclusion}
 
-Because thread preemption and external interrupts will be components of PintOS, synchronization primitives will be vital in ensuring that shared resources are being accessed appropriately and ultimately yielding deterministic results. As PintOS Project 1 assignment requires, a priority scheduler will be implemented, and will require semaphores --more specifically locks. Understanding where semaphores are necessary and adding vital functions to handle, assign, and donate priority will allow for success in PintOS Project 1.
+Because thread preemption and external interrupts are components of Pintos, synchronization primitives are vital in ensuring that shared resources are being accessed appropriately and ultimately yielding deterministic results. The upcoming Pintos Project 1 assignment extends this functionality by implementing a priority scheduler which manipulates the threads’ locks and the semaphores that they are built upon. By understanding the propriety of semaphores and approaching the assignment from a top-down level, Pintos’ scheduling routines can be properly extended to handle, assign, and donate priority between threads.
 
 \pagebreak
 \begin{appendices}
